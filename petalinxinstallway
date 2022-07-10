@@ -1,0 +1,36 @@
+参考文献：https://blog.csdn.net/long_fly/article/details/78727813
+
+
+
+前提：1.确定ubuntu版本与petalinux版本一致(注意ubuntu版本的32位和64位区别)。
+      2.安装虚拟机后，无法使用复制粘贴。需要设置虚拟机vmware的硬盘，sata永久。
+
+1.(按照petalinux安装文档安装相应的库)sudo apt-get install build-essential vim tofrodos iproute2 gawk gcc git make net-tools zlib1g-dev libssl-dev flex bison libselinux1 libncurses5-dev tftpd lib32z1 lib32ncurses5 libbz2-1.0:i386 lib32stdc++6 xvfb chrpath socat autoconf libtool
+  自己设置：sudo apt-get install dos2unix ip gawk gcc g++ netstat tftp server zlib devel openssldevel flex bison libselinux gnupg wget diffstat chrpath socat autoconf libtool texinfo gcc-multilib build-essential libsdl1.2-dev libglib2.0-dev SDL-devel glibc-devel 32-bit glibc glib2-devel automake screen pax gzip libstdc++
+  
+如遇到问题，则：
+      a.net/shimadear/arti/90598646
+      b.sudo systemctl --force --force reboot重启系统
+
+
+2.修改ubuntu脚本语言方式：有dash变更为bash;
+   a.ll /bin/sh 查看脚本语言方式
+   b.若为dash. 使用sudo dpkg-reconfigure dash命令运行后选择否;
+   c.ll /bin/sh 验证脚本语言方式是否更改
+3.安装过程中网络无法连接；
+   a.sudo service network-manager stop;
+   b.sudo rm /var/lib/NetworkManager/NetworkManager.state
+   c.sudo service network-manager start
+4. sudo apt-get install下载安装响应的库
+5. 重新运行安装。
+6. 出现如下错误和警告：
+			INFO: Checking installation environment requirements...
+			./petalinux-v2018.3-final-installer.run: line 181: /tmp/tmp.llVhOEOHTJ/petalinux-env-check: cannot execute binary file: Exec format error
+			WARNING: Please install required packages.
+
+			Please refer to the PetaLinux Tools Installation Guide.
+
+			Check the troubleshooting guide at the end of that manual, and if you are
+			unable to resolve the issue please contact customer support with file:
+			   /opt/pkg/petalinux/sourceDowns/petalinux_installation_log
+         
