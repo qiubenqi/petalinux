@@ -1,0 +1,111 @@
+内容来源：https://blog.csdn.net/sinat_35706094/article/details/79537749
+
+
+---------------------------------------------以下为内容-----------------------------------------------------------
+一、环境介绍及准备
+    系统：ubuntu16.04；
+
+    目标板：zynq-7000；
+
+    编译器：arm-xilinx-linux-gnueadi-gcc
+
+    下载libsocketcan-0.0.9、canutils-4.0.6.tar.bz2、iproute2-4.9.0.tar.bz2；
+
+    分别解压。
+
+二、编译安装libsocketcan-0.0.9
+    cd libsocketcan-0.0.9
+
+ mkdir out 
+
+    // 默认已经配置了交叉编译器。 
+
+    ./configure --prefix=/文件夹路径/libsocketcan-0.0.9/out --host=arm-xilinx-linux-gnueadi
+
+ // 编译
+
+     make 
+
+      make install 
+
+   // 生成的库在 out/lib 下 
+
+    ls out/lib/ 
+
+libsocketcan.a libsocketcan.la libsocketcan.so libsocketcan.so.2 libsocketcan.so.2.2.1 pkgconfig 
+
+// 将这些生成的库复制到你板子的文件系统内，放在 lib 目录下也行，放在 usr/lib 里面也可以
+
+三、编译安装canutils-4.0.6.tar.bz2
+cd canutils-4.0.6/
+// 先将 libsocketcan 里面的头文件 libsocketcan.h can_netlink.h 复制到 canutils 的 include 里面 
+mkdir out 
+// 配置 
+./configure --host=arm-none-linux-gnueabi \ 
+--prefix=/文件夹路径/canutils-4.0.6/out \ 
+libsocketcan_LIBS=-lsocketcan \ 
+LDFLAGS="-L/文件夹路径/libsocketcan-0.0.9/out/lib/" \ 
+libsocketcan_CFLAGS="-I/文件夹路径/libsocketcan-0.0.9/out/include" 
+make 
+make install 
+// 最后在 out/sbin 下能见到 canconfig 命令，在out/bin 下面 candump/canecho/cansend/cansequence。 
+ls out/sbin/ 
+canconfig
+ls out/bin/
+
+candump canecho cansend cansequence
+
+
+
+四、编译安装iproute2-4.9.0.tar.bz2
+cd iproute2-4.9.0
+打开Makefile，修改编译工具 CC =/交叉编译工具链位置/bin/arm-xilinx-linux-gnueadi-gcc
+因为只需要ip命令，所以修改只编译ip工具及lib        SUBDIRS=lib ip
+make
+
+将ip目录下的ip程序放进板子看能否运行；完成。
+
+五、应用
+IP和can_utils的使用参考如下网址：
+
+http://blog.csdn.net/sno_guo/article/details/17029295
+
+波特率设置：
+
+./ip link set can0 down
+
+./ip link set can0 type can bitrate 500000
+
+./ip link set can0 up
+
+接收
+
+./candump can0 
+
+发送
+./cansend can0 -i 0x123 0x11 0x22 0x33 0x44 0x55 0x66 0x77 0x88
+
+回环测试：
+
+./ip link set can0 down
+
+./ip link set can0 type can bitrate 500000 loopback on
+
+./ip link set can0 up
+
+./candump can0 & ./cansend can0 -i 0x123 0x11 0x22 0x33 0x44 0x55 0x66 0x77 0x88
+
+六、参考
+http://www.cnblogs.com/chenfulin5/p/6797756.html
+
+http://blog.csdn.net/u013401853/article/details/71126645
+
+http://www.doc88.com/p-6781555766766.html
+
+https://wenku.baidu.com/view/f91e5ea05fbfc77da369b15d.html
+
+http://blog.csdn.net/sno_guo/article/details/17029295
+
+http://blog.csdn.net/tjcwt2011/article/details/73292164
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+原文链接：https://blog.csdn.net/sinat_35706094/article/details/79537749
